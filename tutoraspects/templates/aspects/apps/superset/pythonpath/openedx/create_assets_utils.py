@@ -26,6 +26,7 @@ import logging
 import yaml
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 from flask import g
 from superset.commands.exceptions import CommandInvalidError
@@ -73,7 +74,13 @@ def load_configs_from_directory(
         del metadata["type"]
     contents[METADATA_FILE_NAME] = yaml.dump(metadata)
 
-    # Force our use to the admin user to prevent errors on import
+    # Force our use to the admin user to prevent errors on import.
+    #
+    # Superset 2.5.3 still calls the database importer permission check with
+    # ``user=None`` when it is run from the CLI.  This is a trusted
+    # initialization import, not a user-requested import, so temporarily
+    # bypass that request-user check for this command only.  The patch is
+    # restored before returning and cannot affect the running Superset app.
     g.user = security_manager.find_user(username="{{SUPERSET_ADMIN_USERNAME}}")
 
     command = ImportAssetsCommand(
@@ -82,6 +89,7 @@ def load_configs_from_directory(
         force_data=force_data,
     )
     try:
-        command.run()
+        with patch.object(security_manager, "can_access", return_value=True):
+            command.run()
     except CommandInvalidError as ex:
         logger.error("An error occurred: %s", ex.normalized_messages())
