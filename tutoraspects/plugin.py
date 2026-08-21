@@ -61,7 +61,15 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         # reasons.
         # Turn on event batching by default, performance is severely impacted by
         # turning this off.
-        ("EVENT_ROUTING_BACKEND_BATCHING_ENABLED", True),
+        # With it set to False:
+        # - Each xAPI event is routed individually through the configured event-routing backend.
+        # - Events are not held until a batch size or time interval is reached.
+        # - It does not disable Vector batching or affect Vector’s ingestion from LMS tracking logs.
+        # - It mainly affects direct event-routing destinations, such as Ralph or an external Caliper/EventStore endpoint.
+        # For a Vector-based xAPI setup, leaving it False is generally correct because Vector
+        # receives and batches the tracking logs independently. The setting only matters if you
+        # are also using Open edX’s direct event-routing path.
+        ("EVENT_ROUTING_BACKEND_BATCHING_ENABLED", False),
         # Events are sent when they hit either the batch size or the batch interval
         # time limit (defaults here are 100 events or 5 seconds).
         # https://event-routing-backends.readthedocs.io/en/latest/getting_started.html#batching-configuration
