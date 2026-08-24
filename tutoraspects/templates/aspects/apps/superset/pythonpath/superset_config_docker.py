@@ -127,9 +127,23 @@ JINJA_CONTEXT_ADDONS = {
 }
 
 {% if SUPERSET_ENABLE_PROXY_FIX %}
-# Caddy is running behind a proxy: Superset needs to handle x-forwarded-* headers
+# Superset is running behind a trusted reverse proxy. ProxyFix makes Flask use
+# the original request details forwarded by the load balancer, rather than the
+# internal HTTP connection between the proxy and Superset. This is required for
+# OAuth callbacks to retain the public HTTPS scheme.
 # https://flask.palletsprojects.com/en/latest/deploying/proxy_fix/
 ENABLE_PROXY_FIX = {{SUPERSET_ENABLE_PROXY_FIX}}
+
+# Trust forwarded headers from exactly one proxy hop (the load balancer).
+# x_proto is the important setting for HTTPS URL generation; the remaining
+# values preserve the original client-facing host, port, path prefix, and IP.
+PROXY_FIX_CONFIG = {
+    "x_for": 1,     # trust X-Forwarded-For for client IP
+    "x_proto": 1,   # trust X-Forwarded-Proto (https)
+    "x_host": 1,    # trust X-Forwarded-Host
+    "x_port": 1,    # trust X-Forwarded-Port
+    "x_prefix": 1,  # trust X-Forwarded-Prefix
+}
 {% endif %}
 
 # Allows superset to open links in a new tab
