@@ -141,7 +141,7 @@ auth.secret_access_key = "{{ ASPECTS_XAPI_S3_SECRET_KEY }}"
 {% if ASPECTS_XAPI_S3_ENDPOINT %}
 endpoint = "{{ ASPECTS_XAPI_S3_ENDPOINT }}"
 {% endif %}
-key_prefix = "xapi/%Y/%m/%d/%H/"
+key_prefix = "{{ ASPECTS_XAPI_S3_KEY_PREFIX }}"
 encoding.codec = "json"
 compression = "gzip"
 batch.max_events = {{ ASPECTS_XAPI_S3_SINK_MAX_EVENTS }}
