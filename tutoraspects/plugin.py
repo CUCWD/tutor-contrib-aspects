@@ -184,6 +184,7 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("ASPECTS_XAPI_S3_BUCKET", ""),
         ("ASPECTS_XAPI_S3_REGION", "us-east-1"),
         ("ASPECTS_XAPI_S3_ENDPOINT", ""),
+        ("ASPECTS_XAPI_S3_KEY_PREFIX", "xapi/%Y/%m/%d/%H/"),
         ("ASPECTS_XAPI_S3_SINK_MAX_EVENTS", "10000"),
         ("ASPECTS_XAPI_S3_SINK_TIMEOUT_SECS", "600"),
         ("ASPECTS_VECTOR_DATABASE", "openedx"),
