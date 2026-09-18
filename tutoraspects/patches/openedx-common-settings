@@ -19,11 +19,18 @@ SUPERSET_CONFIG = {
 EVENT_SINK_CLICKHOUSE_PII_MODELS = {{ EVENT_SINK_PII_MODELS }}
 
 {% if RUN_VECTOR and not RUN_RALPH %}
-# Vector ingests xAPI events from LMS tracking logs. Disable the direct xAPI
-# event-routing backend when Ralph is not deployed, otherwise it may attempt
-# to send events to an unavailable Ralph service.
-if "EVENT_TRACKING_BACKENDS" in globals():
-	EVENT_TRACKING_BACKENDS.get("event_transformer", {}).get("OPTIONS", {}).get("backends", {}).pop("xapi", None)
+# Keep the xAPI event-transformer backend enabled so it emits xAPI records to
+# the xapi_tracking logger consumed by Vector. Vector writes those events to
+# ClickHouse and, when configured, the S3 xAPI sink for later backfill.
+#
+# Do not remove the xapi backend here when Ralph is disabled. The Aspects 4.0
+# ingestor/backfill flow can load the S3 xAPI data directly into ClickHouse:
+# https://github.com/openedx/tutor-contrib-aspects/pull/1208/changes/09a485ae4ebff3e4622d82c28531c41d486358a2
+#
+# The previous code is intentionally disabled because removing the backend
+# prevents Vector from receiving the xapi_tracking records:
+# if "EVENT_TRACKING_BACKENDS" in globals():
+# 	EVENT_TRACKING_BACKENDS.get("event_transformer", {}).get("OPTIONS", {}).get("backends", {}).pop("xapi", None)
 {% endif %}
 
 ASPECTS_INSTRUCTOR_DASHBOARDS = {{ ASPECTS_INSTRUCTOR_DASHBOARDS }}
